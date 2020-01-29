@@ -16,6 +16,13 @@ type hardwareType struct {
 	Name string `json:"name"`
 }
 
+// Hardware types list. API response
+type hardwareTypeList struct {
+	Status string         `json:"status"`
+	Result []hardwareType `json:"result,omitempty"`
+	Error  string         `json:"error,omitempty"`
+}
+
 // Hardwware item
 type hardware struct {
 	ID             int     `json:"id"`

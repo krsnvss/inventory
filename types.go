@@ -42,11 +42,25 @@ type hardware struct {
 	UserName       string  `json:"user_name,omitempty"`
 }
 
+// Hardware list. API response
+type hardwareList struct {
+	Status string     `json:"status"`
+	Result []hardware `json:"result,omitempty"`
+	Error  string     `json:"error,omitempty"`
+}
+
 // Manufacturer
 type manufacturer struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Logo string `json:"logo,omitempty"`
+}
+
+// Manufacturers list. API response
+type manufacturersList struct {
+	Status string         `json:"status"`
+	Result []manufacturer `json:"result,omitempty"`
+	Error  string         `json:"error,omitempty"`
 }
 
 // Model

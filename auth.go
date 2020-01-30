@@ -16,12 +16,12 @@ type login struct {
 
 // User
 type user struct {
-	ID        int
-	Login     string
-	FirstName string
-	LastName  string
-	Password  string
-	Group     string
+	ID        int    `json:"id,omitempty"`
+	Login     string `json:"login,omitempty"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
+	Password  string `json:"password,omitempty"`
+	Group     string `json:"group,omitempty"`
 }
 
 // Payload function for authorization middleware

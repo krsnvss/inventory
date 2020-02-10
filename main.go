@@ -16,10 +16,12 @@ func main() {
 	// TO DO: load configuration from file
 	cfg.DB.FileName = "./db/hardware.db"
 	cfg.Token.IdentityKey = "id"
+	cfg.DebugMode = true
 	// JWT authorization
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:           "inventory",
-		Key:             []byte("secret key"),
+		Realm: "inventory",
+		// TO DO: Load this from config file
+		Key:             []byte("ThisIsVerySecretKey"),
 		Timeout:         time.Hour,
 		MaxRefresh:      time.Hour,
 		IdentityKey:     cfg.Token.IdentityKey,
@@ -44,15 +46,35 @@ func main() {
 	r.POST("login", authMiddleware.LoginHandler)
 	auth.GET("refresh", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
-	auth.GET("hello", helloHandler)
 	// API endpoints
-	api := r.Group("/api/v0.1")
+	hwAPI := r.Group("/api/v0.1/hw")
+	userAPI := r.Group("/api/v0.1/user")
 	// Use token auth to access api endpoints
-	api.Use(authMiddleware.MiddlewareFunc())
-	api.GET("htypes", getHardwareTypes)
-	api.GET("manufacturers", getManufacturers)
-	api.GET("hfull", getHardwareFullList)
-
+	hwAPI.Use(authMiddleware.MiddlewareFunc())
+	userAPI.Use(authMiddleware.MiddlewareFunc())
+	// Hardware
+	hwAPI.POST("add", postNewHardware)
+	hwAPI.GET("all", getHardware)
+	hwAPI.GET("full", getHardwareFullList)
+	hwAPI.PUT("update", putUpdateHardware)
+	hwAPI.DELETE("delete", postDeleteHardware)
+	// Hardware types
+	hwAPI.GET("type", getHardwareTypes)
+	hwAPI.POST("type/add", postNewHardwareType)
+	// Manufacturers
+	hwAPI.GET("manufacturer", getManufacturers)
+	hwAPI.POST("manufacturer/add", postNewManufacturer)
+	hwAPI.PUT("manufacturer/update", putUpdateManufacturer)
+	hwAPI.DELETE("manufacturer/delete", postDeleteManufacturer)
+	// Models
+	hwAPI.GET("model", getModels)
+	hwAPI.POST("model/add", postNewModel)
+	hwAPI.PUT("model/update", putUpdateModel)
+	hwAPI.DELETE("model/delete", postDeleteModel)
+	// Users
+	userAPI.POST("user", postNewUser)
+	userAPI.PUT("user_update", putUpdateUser)
+	userAPI.DELETE("user_delete", postDeleteUser)
 	// Run app
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -61,12 +83,16 @@ func main() {
 	r.Run(":" + port)
 }
 
-func helloHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	u, _ := c.Get(cfg.Token.IdentityKey)
-	c.JSON(200, gin.H{
-		"userID":   claims[cfg.Token.IdentityKey],
-		"userName": u.(*user).Login,
-		"text":     "Hello World.",
-	})
+// Shortcut for debug logging
+func logger(msg string) {
+	if cfg.DebugMode {
+		log.Println(msg)
+	}
+}
+
+// shortcut for error handling
+func check(err error) {
+	if err != nil {
+		log.Println(err.Error())
+	}
 }

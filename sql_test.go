@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+func init() {
+	cfg.DB.FileName = "./db/hardware.db"
+}
+
 // Test function addUser
 func TestAddUser(t *testing.T) {
 	u := user{
@@ -35,7 +39,7 @@ func TestUpdateUser(t *testing.T) {
 	u := user{
 		Login:     "username",
 		FirstName: "Vasyan",
-		LastName:  "Pupkiv",
+		LastName:  "Pupkov",
 		Password:  "SecureKey",
 		Group:     "2",
 	}
@@ -159,6 +163,42 @@ func TestReadHardwareTypes(t *testing.T) {
 	}
 }
 
+// Test function wrieHardwareType
+func TestWriteHardwareType(t *testing.T) {
+	ht := hardwareType{Name: "laptop"}
+	res, err := writeHardwareType(cfg.DB.FileName, ht)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No hardware types were added!")
+	}
+}
+
+// Test function deleteHardwareType
+func TestDeleteHardwareType(t *testing.T) {
+	ht := hardwareType{Name: "laptop"}
+	res, err := deleteHardwareType(cfg.DB.FileName, ht)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No hardware types were deleted!")
+	}
+}
+
+// Test function wrieManufacturer
+func TestWriteManufacturer(t *testing.T) {
+	m := manufacturer{Name: "NoName", Logo: "noname.png"}
+	res, err := writeManufacturer(cfg.DB.FileName, m)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No manufacturers were added!")
+	}
+}
+
 // Test function readManufacturers
 func TestReadManufacturers(t *testing.T) {
 	vl, err := readManufacturers("./db/hardware.db")
@@ -180,6 +220,114 @@ func TestReadManufacturers(t *testing.T) {
 	}
 }
 
+// Test function updateManufacturer
+func TestUpdateManufacturer(t *testing.T) {
+	m := manufacturer{Name: "NoName", Logo: "nonamelogo.png"}
+	res, err := updateManufacturer(cfg.DB.FileName, m)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No manufacturers were updated!")
+	}
+}
+
+// Test function deleteManufacturer
+func TestDeleteManufacturer(t *testing.T) {
+	m := manufacturer{Name: "NoName", Logo: "noname.png"}
+	res, err := deleteManufacturer(cfg.DB.FileName, m)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No manufacturers were deleted!")
+	}
+}
+
+// Test function wrieModel
+func TestWriteModel(t *testing.T) {
+	m := model{Manufacturer: 1, Name: "ComputerCase", Type: 1}
+	res, err := writeModel(cfg.DB.FileName, m)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No models were added!")
+	}
+}
+
+// Test function readModels
+func TestReadModels(t *testing.T) {
+	ml, err := readModels(cfg.DB.FileName)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if len(ml) == 0 {
+		t.Error("Failed to read models! Make sure there're records in model table")
+	}
+	for _, m := range ml {
+		if reflect.TypeOf(m.ID).Kind() != reflect.Int {
+			t.Error("ID is not an Integer! Type of ID is", reflect.TypeOf(m.ID).Kind())
+		}
+	}
+	for _, m := range ml {
+		if reflect.TypeOf(m.Name).Kind() != reflect.String {
+			t.Error("Name is not a string! Type of name is", reflect.TypeOf(m.Name).Kind())
+		}
+	}
+	ml, err = readModels("emptyTest.db")
+	if err == nil {
+		t.Error(err.Error())
+	}
+}
+
+// Test function readOneModelByName
+func TestReadOneModelByName(t *testing.T) {
+	m, err := readOneModelByName(cfg.DB.FileName, "ComputerCase")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if m.ID == 0 {
+		t.Error("Model ID equals zero!")
+	}
+	if reflect.TypeOf(m.Name).Kind() != reflect.String {
+		t.Error("Name is not a string! Type of name is", reflect.TypeOf(m.Name).Kind())
+	}
+}
+
+// Test function updateModel
+func TestUpdateModel(t *testing.T) {
+	om := model{Manufacturer: 1, Name: "ComputerCase", Type: 1}
+	m, err := readOneModelByName(cfg.DB.FileName, om.Name)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	m.Name = "NotAComputerCase"
+	res, err := updateModel(cfg.DB.FileName, m)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No models were updated!")
+	}
+}
+
+// Test function deleteModel
+func TestDeleteModel(t *testing.T) {
+	om := model{Manufacturer: 1, Name: "NotAComputerCase", Type: 1}
+	m, err := readOneModelByName(cfg.DB.FileName, om.Name)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	res, err := deleteModel(cfg.DB.FileName, m)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No models were deleted!")
+	}
+}
+
 // Test function readHardwareFullList
 func TestReadHardwareFullList(t *testing.T) {
 	vl, err := readHardwareFullList("./db/hardware.db")
@@ -198,5 +346,102 @@ func TestReadHardwareFullList(t *testing.T) {
 	vl, err = readHardwareFullList("emptyTest.db")
 	if err == nil {
 		t.Error(err.Error())
+	}
+}
+
+// Test function wrieModel
+func TestWriteHardware(t *testing.T) {
+	h := hardware{
+		Name:           "test-pc",
+		SerialNumber:   "TPC009003",
+		Manufacturer:   1,
+		Model:          1,
+		Type:           1,
+		ProductionDate: "2010-12-22",
+		PurchaseDate:   "2020-12-30",
+		Barcode:        "01009",
+		CPUName:        "Intel Pentium D",
+		CPUCores:       2,
+		CPUMaxClock:    2.6,
+		RAM:            2,
+		Disk:           250,
+		UserName:       "John Doe",
+	}
+	res, err := writeHardware(cfg.DB.FileName, h)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No hardware were added!")
+	}
+}
+
+// Test function readHardware
+func TestReadHardware(t *testing.T) {
+	hl, err := readHardware(cfg.DB.FileName)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if len(hl) == 0 {
+		t.Error("Failed to read hardware! Make sure there're records in model table")
+	}
+	for _, h := range hl {
+		if reflect.TypeOf(h.ID).Kind() != reflect.Int {
+			t.Error("ID is not an Integer! Type of ID is", reflect.TypeOf(h.ID).Kind())
+		}
+	}
+	for _, h := range hl {
+		if reflect.TypeOf(h.Name).Kind() != reflect.String {
+			t.Error("Name is not a string! Type of name is", reflect.TypeOf(h.Name).Kind())
+		}
+	}
+	hl, err = readHardware("emptyTest.db")
+	if err == nil {
+		t.Error(err.Error())
+	}
+}
+
+// Test function readOneHardwareByName
+func TestReadOneHardwareByName(t *testing.T) {
+	h, err := readOneHardwareByName(cfg.DB.FileName, "test-pc")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if h.ID == 0 {
+		t.Error("Hardware ID equals zero!")
+	}
+	if reflect.TypeOf(h.Name).Kind() != reflect.String {
+		t.Error("Name is not a string! Type of name is", reflect.TypeOf(h.Name).Kind())
+	}
+}
+
+// Test function updateHardware
+func TestUpdateHardware(t *testing.T) {
+	h, err := readOneHardwareByName(cfg.DB.FileName, "test-pc")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	h.Name = "NotATest-pc"
+	res, err := updateHardware(cfg.DB.FileName, h)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No hardware entries were updated!")
+	}
+}
+
+// Test function deleteModel
+func TestDeleteHardware(t *testing.T) {
+	h, err := readOneHardwareByName(cfg.DB.FileName, "NotATest-pc")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	res, err := deleteHardware(cfg.DB.FileName, h)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No hardware entries were deleted!")
 	}
 }

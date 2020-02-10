@@ -99,6 +99,18 @@ FROM
 INNER JOIN manufacturer ON manufacturer.id = hardware.manufacturer
 INNER JOIN model ON model.id = hardware.model;
 
+CREATE UNIQUE INDEX "hardwaretypename" ON "hardware_type" (
+	"name"	ASC
+);
+
+CREATE UNIQUE INDEX "manufacturername" ON "manufacturer" (
+	"name"	ASC
+);
+
+CREATE UNIQUE INDEX "modelname" ON "model" (
+	"name"	ASC
+);
+
 CREATE UNIQUE INDEX "username" ON "user" (
 	"login"	ASC
 );

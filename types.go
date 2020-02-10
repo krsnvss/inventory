@@ -8,6 +8,7 @@ type appConfig struct {
 	Token struct {
 		IdentityKey string `json:"identity_key"`
 	} `json:"token"`
+	DebugMode bool `json:"debug_mode"`
 }
 
 // Hardware type
@@ -23,8 +24,27 @@ type hardwareTypeList struct {
 	Error  string         `json:"error,omitempty"`
 }
 
-// Hardwware item
+// Hardware item short representation
 type hardware struct {
+	ID             int     `json:"id"`
+	Name           string  `json:"name"`
+	SerialNumber   string  `json:"serial_number"`
+	Manufacturer   int     `json:"manufacturer"`
+	Model          int     `json:"model"`
+	Type           int     `json:"type"`
+	ProductionDate string  `json:"production_date,omitempty"`
+	PurchaseDate   string  `json:"purchase_date,omitempty"`
+	Barcode        string  `json:"barcode,omitempty"`
+	CPUName        string  `json:"cpu_name,omitempty"`
+	CPUMaxClock    float64 `json:"cpu_max_clock,omitempty"`
+	CPUCores       int     `json:"cpu_cores,omitempty"`
+	RAM            int     `json:"ram,omitempty"`
+	Disk           int     `json:"disk,omitempty"`
+	UserName       string  `json:"user_name,omitempty"`
+}
+
+// Hardware item full representation
+type hardwareFull struct {
 	ID             int     `json:"id"`
 	Name           string  `json:"name"`
 	SerialNumber   string  `json:"serial_number"`
@@ -49,6 +69,13 @@ type hardwareList struct {
 	Error  string     `json:"error,omitempty"`
 }
 
+// Hardware full list. API response
+type hardwareFullList struct {
+	Status string         `json:"status"`
+	Result []hardwareFull `json:"result,omitempty"`
+	Error  string         `json:"error,omitempty"`
+}
+
 // Manufacturer
 type manufacturer struct {
 	ID   int    `json:"id"`
@@ -67,8 +94,15 @@ type manufacturersList struct {
 type model struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
-	Manufacturer string `json:"manufacturer"`
-	Type         string `json:"type"`
+	Manufacturer int    `json:"manufacturer"`
+	Type         int    `json:"type"`
+}
+
+// Models list. API response
+type modelsList struct {
+	Status string  `json:"status"`
+	Result []model `json:"result,omitempty"`
+	Error  string  `json:"error,omitempty"`
 }
 
 // Repair
@@ -85,4 +119,11 @@ type decomission struct {
 	Hardware        int    `json:"hardware"`
 	DecomissionDate string `json:"decomission_date"`
 	Comment         string `json:"comment,omitempty"`
+}
+
+// Server response for API
+type serverResponse struct {
+	Status string `json:"status"`
+	Error  string `json:"error,omitempty"`
+	Result int    `json:"result,omitempty"`
 }

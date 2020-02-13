@@ -142,6 +142,18 @@ func TestDeleteUser(t *testing.T) {
 	}
 }
 
+// Test function wrieHardwareType
+func TestWriteHardwareType(t *testing.T) {
+	ht := hardwareType{Name: "laptop"}
+	res, err := writeHardwareType(cfg.DB.FileName, ht)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if res == 0 {
+		t.Error("No hardware types were added!")
+	}
+}
+
 // Test function readHardwareTypes
 func TestReadHardwareTypes(t *testing.T) {
 	vl, err := readHardwareTypes("./db/hardware.db")
@@ -163,21 +175,39 @@ func TestReadHardwareTypes(t *testing.T) {
 	}
 }
 
-// Test function wrieHardwareType
-func TestWriteHardwareType(t *testing.T) {
-	ht := hardwareType{Name: "laptop"}
-	res, err := writeHardwareType(cfg.DB.FileName, ht)
+// Test function readOneHardwareTypeByName
+func TestReadOneHardwareTypeByName(t *testing.T) {
+	h, err := readOneHardwareTypeByName(cfg.DB.FileName, "laptop")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if h.ID == 0 {
+		t.Error("Hardware type ID equals zero!")
+	}
+	if reflect.TypeOf(h.Name).Kind() != reflect.String {
+		t.Error("Name is not a string! Type of name is", reflect.TypeOf(h.Name).Kind())
+	}
+}
+
+// Test function updateModel
+func TestUpdateHardwareType(t *testing.T) {
+	h, err := readOneHardwareTypeByName(cfg.DB.FileName, "laptop")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	h.Name = "NotALaptop"
+	res, err := updateHardwareType(cfg.DB.FileName, h)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	if res == 0 {
-		t.Error("No hardware types were added!")
+		t.Error("No hardware types were updated!")
 	}
 }
 
 // Test function deleteHardwareType
 func TestDeleteHardwareType(t *testing.T) {
-	ht := hardwareType{Name: "laptop"}
+	ht := hardwareType{Name: "NotALaptop"}
 	res, err := deleteHardwareType(cfg.DB.FileName, ht)
 	if err != nil {
 		t.Error(err.Error())

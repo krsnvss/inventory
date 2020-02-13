@@ -141,6 +141,25 @@ func readHardwareTypes(filename string) ([]hardwareType, error) {
 	return hl, nil
 }
 
+// Read certain hardware type from database by name
+func readOneHardwareTypeByName(filename, name string) (hardwareType, error) {
+	var h hardwareType
+	db, err := sql.Open("sqlite3", filename)
+	if err != nil {
+		return h, err
+	}
+	defer db.Close()
+	rows, err := db.Query(
+		fmt.Sprintf("SELECT * FROM hardware_type WHERE name='%s'", name))
+	if err != nil {
+		return h, err
+	}
+	for rows.Next() {
+		rows.Scan(&h.ID, &h.Name)
+	}
+	return h, nil
+}
+
 // Write new hardware type into database
 func writeHardwareType(filename string, ht hardwareType) (rowsAffected int, err error) {
 	db, err := sql.Open("sqlite3", filename)
@@ -150,6 +169,25 @@ func writeHardwareType(filename string, ht hardwareType) (rowsAffected int, err 
 	defer db.Close()
 	req, err := db.Exec(
 		fmt.Sprintf("INSERT INTO hardware_type (name) VALUES('%s')", ht.Name))
+	if err != nil {
+		return 0, nil
+	}
+	ra, err := req.RowsAffected()
+	if err != nil {
+		return 0, nil
+	}
+	return int(ra), nil
+}
+
+// Update an existing hardware type entry from database
+func updateHardwareType(filename string, h hardwareType) (rowsAffected int, err error) {
+	db, err := sql.Open("sqlite3", filename)
+	if err != nil {
+		return 0, nil
+	}
+	defer db.Close()
+	req, err := db.Exec(
+		fmt.Sprintf(`UPDATE hardware_type SET name = '%s' WHERE id = %v`, h.Name, h.ID))
 	if err != nil {
 		return 0, nil
 	}

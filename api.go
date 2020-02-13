@@ -17,6 +17,21 @@ func getHardware(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "result": h})
 }
 
+// API handler. Returns one certain hardware
+func getOneHardware(c *gin.Context) {
+	// name := c.Params.ByName("name")
+	name, haveName := c.GetQuery("name")
+	if name == "" || !haveName {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Make sure you passing 'name' parameter inside your request"})
+	}
+	h, err := readOneHardwareByName(cfg.DB.FileName, name)
+	if err != nil {
+		logger(err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "result": h})
+}
+
 // API handler. Adds new hardware into database
 func postNewHardware(c *gin.Context) {
 	var h hardware
@@ -86,6 +101,23 @@ func postNewHardwareType(c *gin.Context) {
 	res, err := writeHardwareType(cfg.DB.FileName, ht)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "bad", "error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "result": res})
+	}
+}
+
+// API handler. Updates an existing hardware type entry in database
+func putUpdateHardwareType(c *gin.Context) {
+	var ht hardwareType
+	err := c.ShouldBindJSON(&ht)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
+		logger(err.Error())
+	}
+	res, err := updateHardwareType(cfg.DB.FileName, ht)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
+		logger(err.Error())
 	} else {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "result": res})
 	}

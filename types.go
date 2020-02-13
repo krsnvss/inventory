@@ -69,6 +69,13 @@ type hardwareList struct {
 	Error  string     `json:"error,omitempty"`
 }
 
+// Hardware item. API response
+type hardwareItem struct {
+	Status string   `json:"status"`
+	Result hardware `json:"result,omitempty"`
+	Error  string   `json:"error,omitempty"`
+}
+
 // Hardware full list. API response
 type hardwareFullList struct {
 	Status string         `json:"status"`

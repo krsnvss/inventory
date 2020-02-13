@@ -56,11 +56,14 @@ func main() {
 	hwAPI.POST("add", postNewHardware)
 	hwAPI.GET("all", getHardware)
 	hwAPI.GET("full", getHardwareFullList)
+	hwAPI.GET("one", getOneHardware)
 	hwAPI.PUT("update", putUpdateHardware)
 	hwAPI.DELETE("delete", postDeleteHardware)
 	// Hardware types
 	hwAPI.GET("type", getHardwareTypes)
 	hwAPI.POST("type/add", postNewHardwareType)
+	hwAPI.PUT("type/update", putUpdateHardwareType)
+	hwAPI.DELETE("type/delete", postDeleteHardwareType)
 	// Manufacturers
 	hwAPI.GET("manufacturer", getManufacturers)
 	hwAPI.POST("manufacturer/add", postNewManufacturer)

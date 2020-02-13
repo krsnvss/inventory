@@ -92,6 +92,32 @@ func TestGetHardware(t *testing.T) {
 	}
 }
 
+// Test getOneHardware function
+func TestGetOneHardware(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request, _ = http.NewRequest("GET", "/", nil)
+	param := c.Request.URL.Query()
+	param.Add("name", "test-pc")
+	c.Request.URL.RawQuery = param.Encode()
+	getOneHardware(c)
+	if w.Code != 200 {
+		t.Error("getOneHardware returned", w.Code)
+	}
+	b, err := ioutil.ReadAll(w.Body)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	var h hardwareItem
+	err = json.Unmarshal(b, &h)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if h.Status != "ok" {
+		t.Error("API returned bad status")
+	}
+}
+
 // Test postUpdateHardware function
 func TestPutUpdateHardware(t *testing.T) {
 	w := httptest.NewRecorder()
@@ -211,6 +237,45 @@ func TestGetHardwareType(t *testing.T) {
 		t.Error("API returned empty hardware type list! Make sure the database is not empty")
 	}
 	if htl.Status != "ok" {
+		t.Error("API returned bad status")
+	}
+}
+
+// Test putUpdateHardwareType function
+func TestPutUpdateHardwareType(t *testing.T) {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	ht, err := readOneHardwareTypeByName(cfg.DB.FileName, "laptop")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	ht.Name = "NotALaptop"
+	jht, err := json.Marshal(ht)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	c.Request, err = http.NewRequest("PUT", "/", bytes.NewReader(jht))
+	c.Request.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	putUpdateHardwareType(c)
+	if w.Code != 200 {
+		t.Error("updateHardwareType returned", w.Code)
+	}
+	b, err := ioutil.ReadAll(w.Body)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	var sr serverResponse
+	err = json.Unmarshal(b, &sr)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	if sr.Result == 0 {
+		t.Error("API returned 0! No hardware types were updated")
+	}
+	if sr.Status != "ok" {
 		t.Error("API returned bad status")
 	}
 }
